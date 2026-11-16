@@ -29,8 +29,8 @@ export type SeedProfile = {
   roleFamily: string;
   thesis: string;
   nonNegotiables: NonNegotiables;
-  /** Seeded Reliability Score history: [delta, reason, note]. The score is the sum of the deltas. */
-  reliabilityHistory: [number, "initial" | "coop_completed" | "respectful_closure" | "ghosting", string][];
+  /** Seeded Reliability Score history: [delta, reason, note, hours ago]. The score is the sum of the deltas. */
+  reliabilityHistory: [number, "initial" | "coop_completed" | "respectful_closure" | "ghosting", string, number?][];
   elitmusId: string;
   phPercentile: number;
   /** "replies" = canned chat replies, "goes_silent" = never replies in chat. */
@@ -130,8 +130,8 @@ export const SEED_PROFILES: SeedProfile[] = [
     nonNegotiables: nn("saver", false, "anchored", false, "multigenerational", true, "quiet", false),
     reliabilityHistory: [
       [88, "initial", "Starting score (seeded demo history)."],
-      [-15, "ghosting", "No reply within the chat window (seeded demo history)."],
-      [-15, "ghosting", "No reply within the chat window (seeded demo history)."],
+      [-15, "ghosting", "No reply within the chat window (seeded demo history).", 24 * 16],
+      [-15, "ghosting", "No reply within the chat window (seeded demo history).", 20],
     ],
     elitmusId: "ELM-2021-306815",
     phPercentile: 88,
@@ -456,7 +456,7 @@ export const SEED_ADMIN = { key: "founder", email: "founder@elitmus-demo.in", fi
 export const DEMO_PERSONAS = [
   { key: "arjun", label: "Arjun", tag: "High Trust", email: "arjun.2022@elitmus-demo.in", blurb: "One Co-Op waiting for his answers and one open chat with 4 messages. Try the Safety Shield here." },
   { key: "ananya", label: "Ananya", tag: "Relocating Grad", email: "ananya.2023@elitmus-demo.in", blurb: "No matches yet. Start a fresh Co-Op and buy the Relocation Cohort Pass." },
-  { key: "rohan", label: "Rohan", tag: "Low Reliability", email: "rohan.2021@elitmus-demo.in", blurb: "Below the reliability threshold: hidden from feeds and cannot start new Co-Ops." },
+  { key: "rohan", label: "Rohan", tag: "Low Reliability", email: "rohan.2021@elitmus-demo.in", blurb: "Below the reliability threshold: hidden from feeds, cannot start new Co-Ops, and has one invitation that lets him recover." },
   { key: "founder", label: "Founder", tag: "Admin", email: "founder@elitmus-demo.in", blurb: "Founder dashboard: funnel, revenue, reports queue." },
 ] as const;
 
@@ -473,9 +473,11 @@ export const SPARE_REGISTRY_IDS: { elitmusId: string; batchYear: number; phPerce
 );
 
 /**
- * Seeded matches for Arjun (the "High Trust" persona):
- *   1. A Co-Op in progress with Meera: she has answered, Arjun has not.
- *   2. An open chat with Kavya with exactly 4 messages, the last one from Kavya.
+ * Seeded matches (created in src/db/seed.ts):
+ *   Arjun  1. A Co-Op in progress with Meera: she has answered, Arjun has not.
+ *          2. An open chat with Kavya with exactly 4 messages, the last one from Kavya (below).
+ *   Rohan  3. An invitation from Nandini sent before his score dropped. Joining and
+ *             completing it is his recovery path back above the reliability threshold.
  */
 export const ARJUN_SEED_CHAT: { from: "arjun" | "kavya"; body: string; hoursAgo: number }[] = [
   { from: "kavya", body: "Okay, I did not expect us to agree on the chores question. Outsourcing is self-care.", hoursAgo: 19 },

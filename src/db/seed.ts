@@ -107,7 +107,7 @@ async function writeDemoState(tx: Tx, idByKey: Record<string, string>): Promise<
     const userId = idByKey[p.key];
     await tx.insert(creditTransactions).values({ userId, amount: t.initialCredits, reason: "initial_grant", note: "Welcome credits.", createdAt: hoursAgo(24 * 30) });
     await tx.insert(reliabilityEvents).values(
-      p.reliabilityHistory.map(([delta, reason, note], i) => ({ userId, delta, reason, note, createdAt: hoursAgo(24 * (30 - i * 7)) })),
+      p.reliabilityHistory.map(([delta, reason, note, hours], i) => ({ userId, delta, reason, note, createdAt: hoursAgo(hours ?? 24 * (30 - i * 7)) })),
     );
   }
 
@@ -146,6 +146,17 @@ async function writeDemoState(tx: Tx, idByKey: Record<string, string>): Promise<
   await tx.insert(messages).values(
     ARJUN_SEED_CHAT.map((m, i) => ({ matchId: chat.id, senderId: idByKey[m.from], kind: "text", body: m.body, createdAt: new Date(hoursAgo(m.hoursAgo).getTime() + i * 1000) })),
   );
+
+  // 4b. Nandini invited Rohan before his Reliability Score dropped. Rohan has NOT joined yet
+  //     (no deposit from him). Accepting and completing this Co-Op is his recovery path.
+  const rohan = idByKey.rohan;
+  const nandini = idByKey.nandini;
+  const [invite] = await tx
+    .insert(matches)
+    .values({ requesterId: nandini, targetId: rohan, pairKey: pairKeyFor(nandini, rohan), status: "coop_pending", requesterDeposit: stake, targetDeposit: 0, createdAt: hoursAgo(30) })
+    .returning({ id: matches.id });
+  await lockSeedDeposits(tx, invite.id, [nandini], stake, 30);
+  await insertSeedAnswers(tx, invite.id, nandini, "nandini", 30);
 
   // 5. A few seeded demo orders so the founder dashboard is not empty (labelled as seeded in /admin).
   const p = BUSINESS_RULES.pricing;

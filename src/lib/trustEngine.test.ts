@@ -4,6 +4,7 @@ import {
   MATCH_STATUSES,
   MATCH_TRANSITIONS,
   canCloseForFreeRefund,
+  canJoinCoOp,
   canStartCoOp,
   canTransition,
   closureOutcome,
@@ -113,6 +114,17 @@ describe("canStartCoOp", () => {
     rules.trust.stakeRequiredToConnect = 30;
     expect(canStartCoOp({ ...okContext, availableCredits: 25 }, rules).ok).toBe(false);
     expect(depositLockEntry("ann", rules)).toMatchObject({ amount: -30, reason: "deposit_locked" });
+  });
+});
+
+describe("canJoinCoOp", () => {
+  it("lets a low-reliability user accept an invitation (the recovery path)", () => {
+    expect(canJoinCoOp({ availableCredits: 100, otherOpenCoOps: 0, isBlocked: false })).toEqual({ ok: true });
+  });
+  it("still enforces credits, the concurrency cap and blocks", () => {
+    expect(canJoinCoOp({ availableCredits: STAKE - 1, otherOpenCoOps: 0, isBlocked: false }).ok).toBe(false);
+    expect(canJoinCoOp({ availableCredits: 100, otherOpenCoOps: T.maxConcurrentCoOps, isBlocked: false }).ok).toBe(false);
+    expect(canJoinCoOp({ availableCredits: 100, otherOpenCoOps: 0, isBlocked: true }).ok).toBe(false);
   });
 });
 

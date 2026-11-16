@@ -71,9 +71,10 @@ export const PII_PATTERNS: { kind: PiiKind; label: string; regex: RegExp }[] = [
   {
     // Indian mobile numbers: 10 digits starting 6–9, optional +91 / 91 / 0 prefix,
     // digits may be separated by single spaces, dashes or dots.
+    // The look-behind / look-ahead stop it firing inside longer numbers and prices (₹35,000.50).
     kind: "phone",
     label: "phone number",
-    regex: /(?<![\d₹.,])(?:\+?91[\s.-]?|0)?[6-9](?:[\s.-]?\d){9}(?![\d,]|\.\d)/g,
+    regex: /(?<![\d₹])(?<!\d[.,])(?:\+?91[\s.-]?|0)?[6-9](?:[\s.-]?\d){9}(?!\d|[.,]\d)/g,
   },
   {
     // Digits written as words: eight or more number words in a row ("nine eight seven six ...")

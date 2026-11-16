@@ -58,7 +58,7 @@ export function depositFairnessLines(rules: BusinessRules = BUSINESS_RULES): str
 /** Shield progress, e.g. "3/6 messages until contact details can be shared". Reads: messagesRequiredToUnmaskPII. */
 export function shieldProgressText(totalMessages: number, rules: BusinessRules = BUSINESS_RULES): string {
   const needed = rules.safety.messagesRequiredToUnmaskPII;
-  if (totalMessages >= needed) return "Safety Shield lifted: contact details can now be shared";
+  if (totalMessages >= needed) return "lifted: contact details can now be shared";
   return `${totalMessages}/${needed} messages until contact details can be shared`;
 }
 

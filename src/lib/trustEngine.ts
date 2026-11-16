@@ -208,20 +208,47 @@ export type StartCoOpContext = {
  */
 export function canStartCoOp(ctx: StartCoOpContext, rules: BusinessRules = BUSINESS_RULES): { ok: boolean; reason?: string } {
   const t = rules.trust;
-  if (ctx.isBlocked) return { ok: false, reason: "This profile is not available." };
-  if (!ctx.targetVisible) return { ok: false, reason: "This profile is not in the active pool right now." };
-  if (ctx.hasExistingMatch) return { ok: false, reason: "You already have a Co-Op with this person." };
+  // The starter's own standing is checked first, so the message they see is about what they can fix.
   if (ctx.reliability < rules.safety.minReliabilityScoreForActivePool) {
     return {
       ok: false,
       reason: `Your Reliability Score is below ${rules.safety.minReliabilityScoreForActivePool}%. Finish your open Co-Ops to recover before starting new ones.`,
     };
   }
+  if (ctx.isBlocked) return { ok: false, reason: "This profile is not available." };
+  if (!ctx.targetVisible) return { ok: false, reason: "This profile is not in the active pool right now." };
+  if (ctx.hasExistingMatch) return { ok: false, reason: "You already have a Co-Op with this person." };
   if (ctx.activeCoOps >= t.maxConcurrentCoOps) {
     return {
       ok: false,
       reason: `You already have ${t.maxConcurrentCoOps} open Co-Ops, the maximum. Close one respectfully to start another. This limit cannot be bought.`,
     };
+  }
+  if (ctx.availableCredits < t.stakeRequiredToConnect) {
+    return { ok: false, reason: `You need ${t.stakeRequiredToConnect} available Trust Credits for the commitment deposit.` };
+  }
+  return { ok: true };
+}
+
+/**
+ * Whether an INVITED person may place their deposit and join a Co-Op they were invited to.
+ *
+ * Same checks as starting, except the Reliability Score is NOT checked: accepting an
+ * invitation you already hold is the recovery path for someone below the threshold
+ * (completing it earns reliabilityRecoveryPerCompletedCoOp).
+ *
+ * Reads: stakeRequiredToConnect, maxConcurrentCoOps.
+ *
+ * @param ctx.otherOpenCoOps Open Co-Ops the person has, NOT counting this invitation.
+ */
+export function canJoinCoOp(
+  ctx: { availableCredits: number; otherOpenCoOps: number; isBlocked: boolean },
+  rules: BusinessRules = BUSINESS_RULES,
+): { ok: boolean; reason?: string } {
+  const t = rules.trust;
+  if (ctx.isBlocked) return { ok: false, reason: "This Co-Op is not available." };
+  if (ctx.otherOpenCoOps >= t.maxConcurrentCoOps) {
+    return { ok: false, reason: `You already have ${t.maxConcurrentCoOps} open Co-Ops, the maximum. Close one respectfully to join this one. This limit cannot be bought.` };
   }
   if (ctx.availableCredits < t.stakeRequiredToConnect) {
     return { ok: false, reason: `You need ${t.stakeRequiredToConnect} available Trust Credits for the commitment deposit.` };

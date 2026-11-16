@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { demoLoginAction, logoutAction } from "@/app/actions/auth";
-import { resetDemoAction } from "@/app/actions/demo";
+import { fastForwardAction, resetDemoAction } from "@/app/actions/demo";
 import { APP_NAME } from "@/config/brand";
 
 export type NavbarProps = {
@@ -134,6 +134,13 @@ export function NavbarClient({ viewer, credits, reliability, reliabilityIsLow, d
               </form>
               <div className="hairline my-2" />
               <p className="eyebrow px-2.5 pb-1">Demo tools</p>
+              {demo.fastForwardLabel && viewer.isMember && (
+                <form action={fastForwardAction}>
+                  <button type="submit" role="menuitem" className={menuItem} title="Shifts the timestamps of your open matches so ghosting settlement can be seen live.">
+                    {demo.fastForwardLabel}
+                  </button>
+                </form>
+              )}
               <form action={resetDemoAction}>
                 <button type="submit" role="menuitem" className={menuItem} title="Restores the seeded demo accounts. Real sign-ups are never touched.">
                   Reset Demo Data

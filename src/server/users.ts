@@ -109,13 +109,17 @@ export async function getVisibility(user: User, q: DbOrTx = db) {
 /** Inserts ledger rows produced by an engine plan. */
 export async function insertCreditEntries(q: DbOrTx, entries: CreditEntry[], matchId: string | null): Promise<void> {
   if (entries.length === 0) return;
-  await q.insert(creditTransactions).values(entries.map((e) => ({ userId: e.userId, amount: e.amount, reason: e.reason, note: e.note, matchId })));
+  // Explicit timestamps one millisecond apart keep the ledger in a stable, readable order
+  // (inside a transaction the database clock would give every row the same time).
+  const base = Date.now();
+  await q.insert(creditTransactions).values(entries.map((e, i) => ({ userId: e.userId, amount: e.amount, reason: e.reason, note: e.note, matchId, createdAt: new Date(base + i) })));
 }
 
 /** Inserts reliability rows produced by an engine plan. */
 export async function insertReliabilityChanges(q: DbOrTx, changes: ReliabilityChange[], matchId: string | null): Promise<void> {
   if (changes.length === 0) return;
-  await q.insert(reliabilityEvents).values(changes.map((c) => ({ userId: c.userId, delta: c.delta, reason: c.reason, note: c.note, matchId })));
+  const base = Date.now();
+  await q.insert(reliabilityEvents).values(changes.map((c, i) => ({ userId: c.userId, delta: c.delta, reason: c.reason, note: c.note, matchId, createdAt: new Date(base + i) })));
 }
 
 /** Records a funnel event for the founder dashboard (event name only, no content). */
