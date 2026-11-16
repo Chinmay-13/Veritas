@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/config/brand";
 import { assertConfigValid } from "@/config/businessRules";
+import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 // Fail loudly at startup (and at build time) if src/config/businessRules.ts is invalid.
@@ -28,7 +30,16 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="flex min-h-dvh flex-col antialiased">
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2">
+          Skip to content
+        </a>
+        <Navbar />
+        <div id="main" className="flex-1">
+          {children}
+        </div>
+        <Footer />
+      </body>
     </html>
   );
 }
