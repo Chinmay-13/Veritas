@@ -452,18 +452,21 @@ export async function blockAndReport(user: User, matchId: string, reason: string
 }
 
 // ---------------------------------------------------------------------------
-// Account deletion support
+// Ending matches on behalf of a user (account deletion, suspension)
 // ---------------------------------------------------------------------------
 
 /**
- * Ends all of a user's open matches with a full refund for everyone.
- * Called before an account is deleted so no partner is left with a locked deposit.
+ * Ends all of a user's open matches with a FULL refund for everyone, no fees and no penalties.
+ * Used before an account is deleted and when an admin suspends someone, so that no
+ * partner is ever left with a locked deposit.
+ *
+ * @param summary The system message the other person sees in the chat.
  */
-export async function endOpenMatchesForDeletion(tx: Tx, userId: string): Promise<void> {
+export async function endOpenMatchesWithRefund(tx: Tx, userId: string, summary: string): Promise<void> {
   const open = await tx.select().from(matches).where(and(inArray(matches.status, OPEN_STATUSES), or(eq(matches.requesterId, userId), eq(matches.targetId, userId))));
   for (const match of open) {
     const plan = planBlock(await loadMatchFacts(match, tx));
-    await applyPlan(tx, match, { ...plan, summary: "The other person deleted their account. Your deposit is returned in full." }, userId);
+    await applyPlan(tx, match, { ...plan, summary }, userId);
   }
 }
 
