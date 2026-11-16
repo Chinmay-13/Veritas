@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/*
+ * DESIGN SYSTEM — "Editorial Warm Minimalism"
+ * Calm, intellectual, high-trust. No neon, no heavy gradients.
+ * All colours are defined once here as Tailwind theme tokens
+ * (e.g. `bg-paper`, `text-ink`, `border-line`, `text-brand`).
+ */
+@theme {
+  --color-paper: #faf9f6; /* page background */
+  --color-surface: #ffffff; /* cards */
+  --color-ink: #0f172a; /* primary text */
+  --color-ink-soft: #475569; /* secondary text */
+  --color-line: #e2e8f0; /* hairline borders */
+
+  --color-brand: #4f46e5; /* indigo: actions */
+  --color-brand-deep: #312e81; /* indigo: headings, logo */
+  --color-brand-soft: #eef2ff;
+
+  --color-verified: #059669; /* emerald: verified / aligned */
+  --color-verified-ink: #047857; /* darker emerald for text (AA contrast) */
+  --color-verified-soft: #ecfdf5;
+
+  --color-credit: #d97706; /* amber: credits / caution */
+  --color-credit-ink: #92400e; /* darker amber for text (AA contrast) */
+  --color-credit-soft: #fffbeb;
+
+  --color-danger: #e11d48; /* rose: report / penalty */
+  --color-danger-ink: #be123c;
+  --color-danger-soft: #fff1f2;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    min-height: 100dvh;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  /* Visible keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--color-brand-soft);
+  }
+  dialog::backdrop {
+    background: rgb(15 23 42 / 0.45);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface shadow-sm;
+  }
+  .hairline {
+    @apply border-t border-line;
+  }
+  .eyebrow {
+    @apply text-[11px] font-semibold tracking-[0.14em] text-ink-soft uppercase;
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Buttons */
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-danger {
+    @apply inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-brand-deep text-white hover:bg-brand;
+  }
+  .btn-secondary {
+    @apply border border-line bg-surface text-ink hover:bg-paper;
+  }
+  .btn-ghost {
+    @apply text-ink-soft hover:bg-brand-soft hover:text-brand-deep;
+  }
+  .btn-danger {
+    @apply border border-danger/30 bg-danger-soft text-danger-ink hover:bg-danger hover:text-white;
+  }
+
+  /* Pills / badges */
+  .pill,
+  .pill-verified,
+  .pill-credit,
+  .pill-danger,
+  .pill-brand,
+  .pill-neutral {
+    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
+  }
+  .pill-verified {
+    @apply border-verified/20 bg-verified-soft text-verified-ink;
+  }
+  .pill-credit {
+    @apply border-credit/25 bg-credit-soft text-credit-ink;
+  }
+  .pill-danger {
+    @apply border-danger/25 bg-danger-soft text-danger-ink;
+  }
+  .pill-brand {
+    @apply border-brand/20 bg-brand-soft text-brand-deep;
+  }
+  .pill-neutral {
+    @apply border-line bg-paper text-ink-soft;
+  }
+
+  /* Forms */
+  .label {
+    @apply mb-1 block text-sm font-medium text-ink;
+  }
+  .input {
+    @apply block min-h-10 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-brand;
+  }
+  .help {
+    @apply mt-1 text-xs text-ink-soft;
+  }
+
+  /* Tables (ledgers, audit logs) */
+  .table-wrap {
+    @apply overflow-x-auto rounded-xl border border-line bg-surface;
+  }
+  .ledger {
+    @apply w-full min-w-[560px] border-collapse text-left text-sm;
+  }
+  .ledger th {
+    @apply border-b border-line bg-paper px-3 py-2 text-[11px] font-semibold tracking-wider text-ink-soft uppercase;
+  }
+  .ledger td {
+    @apply border-b border-line px-3 py-2.5 align-top;
+  }
+  .ledger tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Banner used for every "simulated / demo" label (honesty rule). */
+  .demo-note {
+    @apply rounded-lg border border-dashed border-credit/50 bg-credit-soft px-3 py-2 text-xs text-credit-ink;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-md bg-line/70;
+  }
+
+  /* Long-form text (guide, legal) */
+  .prose-veritas p {
+    @apply mt-3 leading-relaxed text-ink-soft;
+  }
+  .prose-veritas ul {
+    @apply mt-3 list-disc space-y-1.5 pl-5 text-ink-soft;
+  }
+  .prose-veritas strong {
+    @apply font-semibold text-ink;
+  }
+}
+
+/* Co-Op answer reveal and toast animations. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: reveal-up 0.5s ease-out both;
+}
+.reveal-delay-1 {
+  animation-delay: 0.12s;
+}
+.reveal-delay-2 {
+  animation-delay: 0.24s;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
