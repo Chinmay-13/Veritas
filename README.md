@@ -4,6 +4,8 @@ High-trust, anti-ghosting matchmaking for verified 2020–2023 graduates. Verita
 
 ## Run locally
 
+Use Node.js 22.14.0 (or run `nvm use` if you use Node Version Manager):
+
 ```bash
 npm install
 npm run dev
